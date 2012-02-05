@@ -15,14 +15,11 @@ function indent() {
   esac
 }
 
+BIN_DIR=$(cd $(dirname $0); pwd) # absolute path
+
 cd $BUILD_DIR
 
-# configure
-if [ -f configure ]; then
-  echo "-----> Configuring"
-  ./configure 2>&1 | indent
-fi
+mkdir -p bin
+echo "-----> Copying lua to bin"
+cp "$BIN_DIR/../opt/lua" "bin/"
 
-# make
-echo "-----> Compiling with Make"
-make 2>&1 | indent
