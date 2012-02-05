@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # bin/detect <build-dir>
 
-if [[ -f $1/web.lua ]]; then
+if [[ -f $1/package.lua ]]; then
   echo "Lua" && exit 0
 else
   echo "no" && exit 1
