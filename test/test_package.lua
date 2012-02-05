@@ -1,0 +1,6 @@
+
+depends {
+	"luafilesystem",
+	"xavante"
+}
+

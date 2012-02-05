@@ -16,10 +16,20 @@ function indent() {
 }
 
 BIN_DIR=$(cd $(dirname $0); pwd) # absolute path
+OPT_DIR=$(cd "$BIN_DIR/../opt"; pwd)
+
+LUA=$BIN_DIR/../opt/lua
+
+if [ "$ENV" == "local" ]; then
+	LUA=lua
+fi
 
 cd $BUILD_DIR
 
 mkdir -p bin
 echo "-----> Copying lua to bin"
-cp "$BIN_DIR/../opt/lua" "bin/"
+cp "$OPT_DIR/lua" "bin/"
+
+echo "-----> Installing packages"
+$LUA "$OPT_DIR/prepare.lua" "package.lua" $OPT_DIR 2>&1 | indent
 
