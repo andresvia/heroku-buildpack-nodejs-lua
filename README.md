@@ -15,16 +15,17 @@ Example usage:
     $ heroku create --stack cedar --buildpack http://github.com/leafo/heroku-buildpack-lua.git
 
 
-Declare your dependencies in `packages.lua`
+Declare your dependencies in `package.lua`
 
-	-- packages.lua
+	-- package.lua
 	depends {
 		"xavante"
 	}
 
-Packages are installed to `packages/` and Lua is installed to `bin/lua`.
+Dependencies are installed to `packages/` and Lua is installed to `bin/lua`.
 
-Set your package path correctly by requiring `packages.init`.
+Set your package path correctly by requiring `packages.init` before requiring
+dependences.
 
 
 	-- web.lua
