@@ -31,5 +31,6 @@ echo "-----> Copying lua to bin"
 cp "$OPT_DIR/lua" "bin/"
 
 echo "-----> Installing packages"
+export PATH=$OPT_DIR:$PATH
 $LUA "$OPT_DIR/prepare.lua" "package.lua" $OPT_DIR 2>&1 | indent
 
