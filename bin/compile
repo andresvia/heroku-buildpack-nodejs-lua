@@ -36,5 +36,11 @@ if [ "$ENV" != "local" ]; then
 	echo "LUA_LIBDIR=[[$OPT_DIR/../lib]]" >> $SITE_CONFIG
 fi
 
+PACKAGE_MOD="packages/init.lua"
+mkdir -p $(dirname $PACKAGE_MOD)
+
+echo "package.cpath = [[packages/lib/lua/5.1/?.so;]] .. package.cpath" >> $PACKAGE_MOD
+echo "package.path = [[packages/share/lua/5.1/?.lua;]] .. package.path" >> $PACKAGE_MOD
+
 $LUA "$OPT_DIR/prepare.lua" "package.lua" $OPT_DIR 2>&1 | indent
 
