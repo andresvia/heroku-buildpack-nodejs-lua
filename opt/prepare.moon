@@ -8,8 +8,8 @@ error "missing opt dir" if not opt_dir
 
 fn = loadfile package_fname
 if not fn
-	print "Failed to open package file:", package_fname
-	os.exit 1
+  print "Failed to open package file:", package_fname
+  os.exit 1
 
 strip = (str) -> str\match "^%s*(.-)%s*$"
 
