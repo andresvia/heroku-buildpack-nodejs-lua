@@ -53,28 +53,28 @@ work.
 
 Use [Xavante][5] for a quick web server:
 
-	-- web.lua
-	require "xavante"
+    -- web.lua
+    require "xavante"
 
-  port = ...
+    port = ...
 
-	xavante.HTTP {
-    server = { host = "*", port = tonumber(port) },
-    defaultHost = {
-      rules = {
-        {
-          match = ".",
-          with = function(req, res)
-            res.headers["Content-type"] = "text/html"
-            res.content = "hello world, the time is: " .. os.date()
-            return res
-          end
+    xavante.HTTP {
+      server = { host = "*", port = tonumber(port) },
+      defaultHost = {
+        rules = {
+          {
+            match = ".",
+            with = function(req, res)
+              res.headers["Content-type"] = "text/html"
+              res.content = "hello world, the time is: " .. os.date()
+              return res
+            end
+          }
         }
       }
     }
-  }
 
-	xavante.run()
+    xavante.run()
 
 Tell Heroku to spawn your web server by creating a file called `Procfile`:
 
