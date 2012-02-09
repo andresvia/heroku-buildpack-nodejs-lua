@@ -13,7 +13,7 @@ Create an app with the buildpack:
 
     $ heroku create --stack cedar --buildpack http://github.com/leafo/heroku-buildpack-lua.git
 
-## Describing Dependencies
+### Describing Dependencies
 
 In order to describe the dependencies of you application you must create a
 [rockspec][4] for it.
@@ -40,7 +40,7 @@ As shown above, if you want to include rockspec or rock files by url you can
 place them in the dependencies table. (This is not supported by LuaRocks, only
 by this buildpack).
 
-## Using Dependencies
+### Using Dependencies
 
 The buildpack installs the dependencies to `packages/` and Lua is installed to
 `bin/lua`.
@@ -63,7 +63,7 @@ something like this:
 
     pcall(require, "packages.init")
 
-## Running a Process
+### Running a Process
 
 To spawn your server create a `Procfile` similar to:
 
