@@ -33,9 +33,9 @@ could look something like this:
       "cosmo"
     }
 
-As shown above, if you want to include rockspec or rock files by url you can
-place them in the dependencies table. (This is not supported by LuaRocks, only
-by this buildpack).
+As shown above, if you want to include external rockspec or rock files by URL
+you can place them in the dependencies table. (This is not supported by
+LuaRocks, only by this buildpack).
 
 This file must exist, even if you have no dependencies. The rockspec is parsed
 in [prepare.moon][3].
@@ -45,9 +45,9 @@ The buildpack installs the dependencies to `packages/` and Lua to `bin/lua`.
 The `bin/` directory is added to the `PATH` on initial install so you can run
 Lua directly.
 
-Additionally, `LUA_PATH` and `LUA_CPATH` are set to point to where the
-dependencies are installed.
-
+Additionally, `LUA_PATH` and `LUA_CPATH` environment variables are set to point
+to where the dependencies are installed so you can `require` them with no extra
+work.
 
 ## Example App
 
@@ -85,9 +85,17 @@ start it:
 
     $ heroku scale web=1
 
+
+## Note
+
+If you were using the first incarnation of this buildpack the paths were not
+set automatically. In order to upgrade your app use `heroku config` to
+manually set the config vars described in the [release script][6].
+
  [1]: http://www.lua.org
  [2]: http://luarocks.org/
  [3]: https://github.com/leafo/heroku-buildpack-lua/blob/master/opt/prepare.moon
  [4]: http://luarocks.org/en/Rockspec_format
  [5]: http://keplerproject.github.com/xavante/
+ [6]: https://github.com/leafo/heroku-buildpack-lua/blob/master/bin/release
 
