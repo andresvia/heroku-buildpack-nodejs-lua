@@ -1,15 +1,5 @@
 
-package_fname, opt_dir = ...
-
-import concat from table
-
-error "missing package file" if not package_fname
-error "missing opt dir" if not opt_dir
-
-fn = loadfile package_fname
-if not fn
-  print "Failed to open package file:", package_fname
-  os.exit 1
+rockspec_path, opt_dir = ...
 
 strip = (str) -> str\match "^%s*(.-)%s*$"
 
@@ -19,37 +9,32 @@ read_cmd = (cmd) ->
     f\close!
 
 -- where packages are installed
-tree = read_cmd("dirname " .. package_fname) .. "/packages"
+tree = read_cmd("dirname " .. rockspec_path) .. "/packages"
+tree = read_cmd "cd " .. tree .. " && pwd"
 
-lua_bin = opt_dir .. "/lua"
-lua_bin = "lua" if os.getenv("ENV") == "local"
+-- keep error messages simple
+error = (msg) ->
+  print msg
+  os.exit 1
 
-luarocks_dir = opt_dir .. "/luarocks"
+error "Missing opt_dir" if not opt_dir
+error "Missing rockspec_path" if not rockspec_path
 
-lua_path = concat {
-  luarocks_dir .. "/?.lua"
-}, ";"
+fn = loadfile rockspec_path
+error "Failed to open rockspec:", rockspec_path if not fn
 
-install = (pkg_name) ->
-  cmd = concat {
-    "LUA_PATH='", lua_path, ";;' "
-    lua_bin, " ", opt_dir, "/luarocks/bin/luarocks"
-    " --tree=", tree
-    " install ", pkg_name
-  }
-  os.execute cmd
-
-actions = {
-  depends: (tbl) ->
-    install dep for dep in *tbl
+rockspec = {
+  name: "anonymous_app"
 }
+setfenv(fn, rockspec)!
 
-setfenv fn, setmetatable {}, {
-  __index: (name) =>
-    orig = _G[name]
-    return orig if orig != nil
-    actions[name] or ->
-}
+path = require"luarocks.path"
+deps = require"luarocks.deps"
 
-os.execute "mkdir -p " .. tree
-fn!
+rockspec.dependencies = for dep in *rockspec.dependencies
+  deps.parse_dep dep
+
+path.use_tree tree
+success, msg = deps.fulfill_dependencies rockspec
+error msg if not success
+

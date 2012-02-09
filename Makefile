@@ -3,7 +3,7 @@ all:
 	cd opt; make
 
 test:: 
-	-rm -r tmp-build
+	-rm -rf tmp-build
 	mkdir -p tmp-build
-	cp test/test_package.lua tmp-build/package.lua
+	cp test/package.rockspec tmp-build/
 	ENV=local bin/compile tmp-build
