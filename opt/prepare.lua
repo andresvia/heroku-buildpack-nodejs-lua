@@ -14,6 +14,8 @@ read_cmd = function(cmd)
 end
 local tree = read_cmd("dirname " .. rockspec_path) .. "/packages"
 tree = read_cmd("cd " .. tree .. " && pwd")
+local luarocks_dir = opt_dir .. "/luarocks"
+package.path = luarocks_dir .. "/?.lua;" .. package.path
 local error
 error = function(msg)
   print(msg)
@@ -60,11 +62,6 @@ path.use_tree(tree)
 local success, msg = deps.fulfill_dependencies(rockspec)
 if not success then
   error(msg)
-end
-local p
-do
-  local _table_0 = require("moon")
-  p = _table_0.p
 end
 local _list_0 = extras
 for _index_0 = 1, #_list_0 do

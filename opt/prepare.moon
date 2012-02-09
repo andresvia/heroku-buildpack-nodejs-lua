@@ -12,6 +12,10 @@ read_cmd = (cmd) ->
 tree = read_cmd("dirname " .. rockspec_path) .. "/packages"
 tree = read_cmd "cd " .. tree .. " && pwd"
 
+-- set path so we can find luarocks
+luarocks_dir = opt_dir .. "/luarocks"
+package.path = luarocks_dir .. "/?.lua;" .. package.path
+
 -- keep error messages simple
 error = (msg) ->
   print msg
@@ -21,6 +25,7 @@ error "Missing opt_dir" if not opt_dir
 error "Missing rockspec_path" if not rockspec_path
 
 fn = loadfile rockspec_path
+
 error "Failed to open rockspec:", rockspec_path if not fn
 
 rockspec = {
@@ -43,8 +48,6 @@ rockspec.dependencies = for dep in *rockspec.dependencies
 path.use_tree tree
 success, msg = deps.fulfill_dependencies rockspec
 error msg if not success
-
-import p from require "moon"
 
 for extra in *extras
   install.run extra

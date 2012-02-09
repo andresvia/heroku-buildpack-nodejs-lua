@@ -3,15 +3,8 @@
 
 if [[ $(ls $1/*.rockspec 2> /dev/null | wc -l) -gt 0 ]]; then
   echo "Lua" && exit 0
+elif [[ -f $1/package.lua ]]; then
+  echo "Lua-legacy" && exit 0
 else
-  if [[ -f $1/package.lua ]]; then
-    echo "" >&2
-    echo "package.lua is no longer supported." >&2
-    echo "" >&2
-    echo "You must provide a rockspec with your app." >&2
-    echo "See https://github.com/leafo/heroku-buildpack-lua/blob/master/README.md" >&2
-    echo "" >&2
-  fi
-
   echo "no" && exit 1
 fi
