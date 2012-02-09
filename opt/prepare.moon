@@ -30,11 +30,20 @@ setfenv(fn, rockspec)!
 
 path = require"luarocks.path"
 deps = require"luarocks.deps"
+install = require"luarocks.install"
 
+extras = {}
 rockspec.dependencies = for dep in *rockspec.dependencies
-  deps.parse_dep dep
+  parsed = deps.parse_dep dep
+  if not parsed
+    table.insert extras, dep
+  parsed
 
 path.use_tree tree
 success, msg = deps.fulfill_dependencies rockspec
 error msg if not success
 
+import p from require "moon"
+
+for extra in *extras
+  install.run extra
