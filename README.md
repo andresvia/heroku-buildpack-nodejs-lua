@@ -13,7 +13,7 @@ Create an app with the buildpack:
 
     $ heroku create --stack cedar --buildpack http://github.com/leafo/heroku-buildpack-lua.git
 
-### Describing Dependencies
+### Dependencies
 
 In order to describe the dependencies of you application you must create a
 [rockspec][4] for it.
@@ -26,12 +26,12 @@ The buildpack *only* looks at the dependency information. Meaning you don't
 have to follow the entire rockspec specification. Minimally, your rockspec
 could look something like this:
 
-	-- my_app.rockspec
-	dependencies = {
-		"xavante >= 2.2.1",
-		"http://moonscript.org/rocks/moonscript-dev-1.src.rock",
-		"cosmo"
-	}
+    -- my_app.rockspec
+    dependencies = {
+      "xavante >= 2.2.1",
+      "http://moonscript.org/rocks/moonscript-dev-1.src.rock",
+      "cosmo"
+    }
 
 As shown above, if you want to include rockspec or rock files by url you can
 place them in the dependencies table. (This is not supported by LuaRocks, only
@@ -40,38 +40,54 @@ by this buildpack).
 This file must exist, even if you have no dependencies. The rockspec is parsed
 in [prepare.moon][3].
 
-### Using Dependencies
-
 The buildpack installs the dependencies to `packages/` and Lua to `bin/lua`.
 
-Before you can require any of your dependencies, you must update your
-`package.path` by requiring `packages.init`.
+The `bin/` directory is added to the `PATH` on initial install so you can run
+Lua directly.
+
+Additionally, `LUA_PATH` and `LUA_CPATH` are set to point to where the
+dependencies are installed.
+
+
+## Example App
+
+Use [Xavante][5] for a quick web server:
 
 	-- web.lua
-	require "packages.init"
 	require "xavante"
 
+  port = ...
+
 	xavante.HTTP {
-		...
-	}
+    server = { host = "*", port = tonumber(port) },
+    defaultHost = {
+      rules = {
+        {
+          match = ".",
+          with = function(req, res)
+            res.headers["Content-type"] = "text/html"
+            res.content = "hello world, the time is: " .. os.date()
+            return res
+          end
+        }
+      }
+    }
+  }
 
 	xavante.run()
 
-If you're running testing locally as well, and `packages.init` doesn't exist,
-do something like this:
+Tell Heroku to spawn your web server by creating a file called `Procfile`:
 
-    pcall(require, "packages.init")
+    web:     lua web.lua $PORT
 
-### Running a Process
+After pushing, if the web server doesn't start automatically, tell Heroku to
+start it:
 
-To spawn your server create a `Procfile` similar to:
-
-    web:     bin/lua web.lua $PORT
-
-Where `web.lua` is the entry point to your Lua application.
+    $ heroku scale web=1
 
  [1]: http://www.lua.org
  [2]: http://luarocks.org/
  [3]: https://github.com/leafo/heroku-buildpack-lua/blob/master/opt/prepare.moon
  [4]: http://luarocks.org/en/Rockspec_format
+ [5]: http://keplerproject.github.com/xavante/
 
