@@ -33,17 +33,16 @@ could look something like this:
 		"cosmo"
 	}
 
-This file must exist, even if you have no dependencies. The rockspec is parsed
-in [prepare.moon][3].
-
 As shown above, if you want to include rockspec or rock files by url you can
 place them in the dependencies table. (This is not supported by LuaRocks, only
 by this buildpack).
 
+This file must exist, even if you have no dependencies. The rockspec is parsed
+in [prepare.moon][3].
+
 ### Using Dependencies
 
-The buildpack installs the dependencies to `packages/` and Lua is installed to
-`bin/lua`.
+The buildpack installs the dependencies to `packages/` and Lua to `bin/lua`.
 
 Before you can require any of your dependencies, you must update your
 `package.path` by requiring `packages.init`.
@@ -58,8 +57,8 @@ Before you can require any of your dependencies, you must update your
 
 	xavante.run()
 
-If you're running testing locally as well, and `package.init` doesn't exist, do
-something like this:
+If you're running testing locally as well, and `packages.init` doesn't exist,
+do something like this:
 
     pcall(require, "packages.init")
 
