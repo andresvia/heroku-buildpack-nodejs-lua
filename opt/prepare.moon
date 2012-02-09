@@ -25,6 +25,7 @@ error "Failed to open rockspec:", rockspec_path if not fn
 
 rockspec = {
   name: "anonymous_app"
+  dependencies: {}
 }
 setfenv(fn, rockspec)!
 

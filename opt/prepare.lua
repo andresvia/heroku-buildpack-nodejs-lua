@@ -30,7 +30,8 @@ if not fn then
   error("Failed to open rockspec:", rockspec_path)
 end
 local rockspec = {
-  name = "anonymous_app"
+  name = "anonymous_app",
+  dependencies = { }
 }
 setfenv(fn, rockspec)()
 local path = require("luarocks.path")
