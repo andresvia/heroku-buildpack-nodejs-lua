@@ -74,7 +74,7 @@ Use [Xavante][5] for a quick web server:
       }
     }
 
-    xavante.run()
+    xavante.start()
 
 Tell Heroku to spawn your web server by creating a file called `Procfile`:
 
