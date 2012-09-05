@@ -37,6 +37,10 @@ setfenv(fn, rockspec)!
 path = require"luarocks.path"
 deps = require"luarocks.deps"
 install = require"luarocks.install"
+util = require"luarocks.util"
+cfg = require"luarocks.cfg"
+
+util.deep_merge cfg, rockspec.config if rockspec.config
 
 extras = {}
 rockspec.dependencies = for dep in *rockspec.dependencies
