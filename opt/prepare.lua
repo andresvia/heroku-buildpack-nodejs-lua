@@ -1,4 +1,10 @@
 local rockspec_path, opt_dir = ...
+if not opt_dir then
+  error("Missing opt_dir")
+end
+if not rockspec_path then
+  error("Missing rockspec_path")
+end
 local strip
 strip = function(str)
   return str:match("^%s*(.-)%s*$")
@@ -12,20 +18,19 @@ read_cmd = function(cmd)
     return _with_0
   end
 end
-local tree = read_cmd("dirname " .. rockspec_path) .. "/packages"
-tree = read_cmd("cd " .. tree .. " && pwd")
+local full_path
+full_path = function(dir)
+  local path = read_cmd("dirname " .. rockspec_path) .. "/" .. dir
+  return read_cmd("cd " .. path .. " && pwd")
+end
+local tree = full_path("packages")
+local bin = full_path("bin")
 local luarocks_dir = opt_dir .. "/luarocks"
 package.path = luarocks_dir .. "/?.lua;" .. package.path
 local error
 error = function(msg)
   print(msg)
   return os.exit(1)
-end
-if not opt_dir then
-  error("Missing opt_dir")
-end
-if not rockspec_path then
-  error("Missing rockspec_path")
 end
 local fn = loadfile(rockspec_path)
 if not fn then
@@ -65,6 +70,7 @@ rockspec.dependencies = (function()
   return _accum_0
 end)()
 path.use_tree(tree)
+cfg.deploy_bin_dir = bin
 local success, msg = deps.fulfill_dependencies(rockspec)
 if not success then
   error(msg)

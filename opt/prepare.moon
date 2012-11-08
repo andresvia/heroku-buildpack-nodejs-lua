@@ -1,6 +1,9 @@
 
 rockspec_path, opt_dir = ...
 
+error "Missing opt_dir" if not opt_dir
+error "Missing rockspec_path" if not rockspec_path
+
 strip = (str) -> str\match "^%s*(.-)%s*$"
 
 read_cmd = (cmd) ->
@@ -8,9 +11,13 @@ read_cmd = (cmd) ->
   with strip f\read"*a"
     f\close!
 
+full_path = (dir) ->
+  path = read_cmd("dirname " .. rockspec_path) .. "/" .. dir
+  read_cmd "cd " .. path .. " && pwd"
+
 -- where packages are installed
-tree = read_cmd("dirname " .. rockspec_path) .. "/packages"
-tree = read_cmd "cd " .. tree .. " && pwd"
+tree = full_path "packages"
+bin = full_path "bin"
 
 -- set path so we can find luarocks
 luarocks_dir = opt_dir .. "/luarocks"
@@ -20,9 +27,6 @@ package.path = luarocks_dir .. "/?.lua;" .. package.path
 error = (msg) ->
   print msg
   os.exit 1
-
-error "Missing opt_dir" if not opt_dir
-error "Missing rockspec_path" if not rockspec_path
 
 fn = loadfile rockspec_path
 
@@ -52,6 +56,9 @@ rockspec.dependencies = for dep in *rockspec.dependencies
   parsed
 
 path.use_tree tree
+
+cfg.deploy_bin_dir = bin
+
 success, msg = deps.fulfill_dependencies rockspec
 error msg if not success
 
