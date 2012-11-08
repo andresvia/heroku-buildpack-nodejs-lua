@@ -11,7 +11,7 @@ Read a tutorial at <http://leafo.net/posts/lua_on_heroku.html>.
 
 Create an app with the buildpack:
 
-    $ heroku create --stack cedar --buildpack http://github.com/leafo/heroku-buildpack-lua.git
+    $ heroku create --buildpack http://github.com/leafo/heroku-buildpack-lua.git
 
 ### Dependencies
 
