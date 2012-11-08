@@ -41,6 +41,7 @@ local deps = require("luarocks.deps")
 local install = require("luarocks.install")
 local util = require("luarocks.util")
 local cfg = require("luarocks.cfg")
+cfg.wrap_bin_scripts = false
 if rockspec.config then
   util.deep_merge(cfg, rockspec.config)
 end

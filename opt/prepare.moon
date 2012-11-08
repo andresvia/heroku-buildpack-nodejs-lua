@@ -40,6 +40,8 @@ install = require"luarocks.install"
 util = require"luarocks.util"
 cfg = require"luarocks.cfg"
 
+cfg.wrap_bin_scripts = false
+
 util.deep_merge cfg, rockspec.config if rockspec.config
 
 extras = {}
