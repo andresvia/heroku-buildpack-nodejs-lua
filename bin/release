@@ -4,7 +4,7 @@
 cat << EOF
 ---
 config_vars:
-  PATH: /app/bin:/app/packages/bin:/usr/local/bin:/usr/bin:/bin
+  PATH: /app/bin:/usr/local/bin:/usr/bin:/bin
   LUA_CPATH: ./?.so;/app/packages/lib/lua/5.1/?.so
   LUA_PATH: ./?.lua;/app/packages/share/lua/5.1/?.lua;/app/packages/share/lua/5.1/?/init.lua
 EOF
