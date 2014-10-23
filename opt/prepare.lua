@@ -51,9 +51,9 @@ if rockspec.config then
   util.deep_merge(cfg, rockspec.config)
 end
 local extras = { }
-rockspec.dependencies = (function()
+do
   local _accum_0 = { }
-  local _len_0 = 0
+  local _len_0 = 1
   local _list_0 = rockspec.dependencies
   for _index_0 = 1, #_list_0 do
     local dep = _list_0[_index_0]
@@ -62,21 +62,18 @@ rockspec.dependencies = (function()
       table.insert(extras, dep)
     end
     local _value_0 = parsed
-    if _value_0 ~= nil then
-      _len_0 = _len_0 + 1
-      _accum_0[_len_0] = _value_0
-    end
+    _accum_0[_len_0] = _value_0
+    _len_0 = _len_0 + 1
   end
-  return _accum_0
-end)()
+  rockspec.dependencies = _accum_0
+end
 path.use_tree(tree)
 cfg.deploy_bin_dir = bin
 local success, msg = deps.fulfill_dependencies(rockspec)
 if not success then
   error(msg)
 end
-local _list_0 = extras
-for _index_0 = 1, #_list_0 do
-  local extra = _list_0[_index_0]
+for _index_0 = 1, #extras do
+  local extra = extras[_index_0]
   install.run(extra)
 end
