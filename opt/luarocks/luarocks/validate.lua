@@ -1,6 +1,8 @@
 
 --- Sandboxed test of build/install of all packages in a repository (unfinished and disabled).
-module("luarocks.validate", package.seeall)
+--module("luarocks.validate", package.seeall)
+local validate = {}
+package.loaded["luarocks.validate"] = validate
 
 local fs = require("luarocks.fs")
 local dir = require("luarocks.dir")
@@ -10,9 +12,9 @@ local build = require("luarocks.build")
 local install = require("luarocks.install")
 local util = require("luarocks.util")
 
-help_summary = "Sandboxed test of build/install of all packages in a repository."
+validate.help_summary = "Sandboxed test of build/install of all packages in a repository."
 
-help = [[
+validate.help = [[
 <argument>, if given, is a local repository pathname.
 ]]
 
@@ -50,7 +52,7 @@ local function prepare_sandbox(file)
 end
 
 local function validate_rockspec(file)
-   local ok, err, errcode = build.build_rockspec(file, true)
+   local ok, err, errcode = build.build_rockspec(file, true, "one")
    if not ok then
       util.printerr(err)
    end
@@ -58,7 +60,7 @@ local function validate_rockspec(file)
 end
 
 local function validate_src_rock(file)
-   local ok, err, errcode = build.build_rock(file, false)
+   local ok, err, errcode = build.build_rock(file, false, "one")
    if not ok then
       util.printerr(err)
    end
@@ -66,14 +68,19 @@ local function validate_src_rock(file)
 end
 
 local function validate_rock(file)
-   local ok, err, errcode = install.install_binary_rock(file)
+   local ok, err, errcode = install.install_binary_rock(file, "one")
    if not ok then
       util.printerr(err)
    end
    return ok, err, errcode
 end
 
-local function validate(repo, flags)
+function validate.run(...)
+   local flags, repo = util.parse_flags(...)
+   repo = repo or cfg.rocks_dir
+
+   util.printout("Verifying contents of "..repo)
+
    local results = {
       ok = {}
    }
@@ -85,7 +92,7 @@ local function validate(repo, flags)
    if not fs.exists(repo) then
       return nil, repo.." is not a local repository."
    end
-   for _, file in pairs(fs.list_dir(repo)) do for _=1,1 do
+   for file in fs.dir(repo) do for _=1,1 do
       if file == "manifest" or file == "index.html" then
          break -- continue for
       end
@@ -97,7 +104,7 @@ local function validate(repo, flags)
       util.printout()
       util.printout("Verifying "..pathname)
       if file:match("%.rockspec$") then
-         ok, err, errcode = validate_rockspec(pathname)
+         ok, err, errcode = validate_rockspec(pathname, "one")
       elseif file:match("%.src%.rock$") then
          ok, err, errcode = validate_src_rock(pathname)
       elseif file:match("%.rock$") then
@@ -124,9 +131,7 @@ local function validate(repo, flags)
       fs.delete(sandbox)
    end
    restore_settings(settings)
-   util.printout()
-   util.printout("Results:")
-   util.printout("--------")
+   util.title("Results:")
    util.printout("OK: "..tostring(#results.ok))
    for _, entry in ipairs(results.ok) do
       util.printout(entry.file)
@@ -141,9 +146,7 @@ local function validate(repo, flags)
       end
    end
 
-   util.printout()
-   util.printout("Summary:")
-   util.printout("--------")
+   util.title("Summary:")
    local total = 0
    for errcode, errors in pairs(results) do
       util.printout(errcode..": "..tostring(#errors))
@@ -153,12 +156,5 @@ local function validate(repo, flags)
    return true
 end
 
-function run(...)
-   local flags, repo = util.parse_flags(...)
-   repo = repo or cfg.rocks_dir
 
-   util.printout("Verifying contents of "..repo)
-
-   return validate(repo, flags)
-end
-
+return validate

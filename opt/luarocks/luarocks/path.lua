@@ -2,46 +2,46 @@
 --- LuaRocks-specific path handling functions.
 -- All paths are configured in this module, making it a single
 -- point where the layout of the local installation is defined in LuaRocks.
-module("luarocks.path", package.seeall)
+--module("luarocks.path", package.seeall)
+local path = {}
 
 local dir = require("luarocks.dir")
 local cfg = require("luarocks.cfg")
 local util = require("luarocks.util")
 
-help_summary = "Return the currently configured package path."
-help_arguments = ""
-help = [[
-Returns the package path currently configured for this installation
-of LuaRocks, formatted as shell commands to update LUA_PATH and
-LUA_CPATH. (On Unix systems, you may run: eval `luarocks path`)
-]]
-
 --- Infer rockspec filename from a rock filename.
 -- @param rock_name string: Pathname of a rock file.
 -- @return string: Filename of the rockspec, without path.
-function rockspec_name_from_rock(rock_name)
+function path.rockspec_name_from_rock(rock_name)
    assert(type(rock_name) == "string")
    local base_name = dir.base_name(rock_name)
    return base_name:match("(.*)%.[^.]*.rock") .. ".rockspec"
 end
 
-function rocks_dir(tree)
+function path.rocks_dir(tree)
    if type(tree) == "string" then
-      return dir.path(tree, "lib", "luarocks", "rocks")
+      return dir.path(tree, cfg.rocks_subdir)
    else
       assert(type(tree) == "table")
-      return tree.rocks_dir or dir.path(tree.root, "lib", "luarocks", "rocks")
+      return tree.rocks_dir or dir.path(tree.root, cfg.rocks_subdir)
    end
 end
 
-function root_dir(rocks_dir)
+function path.root_dir(rocks_dir)
    assert(type(rocks_dir) == "string")
-   
-   local suffix = dir.path("lib", "luarocks", "rocks")
-   return rocks_dir:match("(.*)" .. suffix .. "$")
+   return rocks_dir:match("(.*)" .. util.matchquote(cfg.rocks_subdir) .. ".*$")
 end
 
-function deploy_bin_dir(tree)
+function path.rocks_tree_to_string(tree)
+   if type(tree) == "string" then
+      return tree
+   else
+      assert(type(tree) == "table")
+      return tree.root
+   end
+end
+
+function path.deploy_bin_dir(tree)
    if type(tree) == "string" then
       return dir.path(tree, "bin")
    else
@@ -50,7 +50,7 @@ function deploy_bin_dir(tree)
    end
 end
 
-function deploy_lua_dir(tree)
+function path.deploy_lua_dir(tree)
    if type(tree) == "string" then
       return dir.path(tree, cfg.lua_modules_path)
    else
@@ -59,7 +59,7 @@ function deploy_lua_dir(tree)
    end
 end
 
-function deploy_lib_dir(tree)
+function path.deploy_lib_dir(tree)
    if type(tree) == "string" then
       return dir.path(tree, cfg.lib_modules_path)
    else
@@ -68,12 +68,12 @@ function deploy_lib_dir(tree)
    end
 end
 
-function manifest_file(tree)
+function path.manifest_file(tree)
    if type(tree) == "string" then
-      return dir.path(tree, "lib", "luarocks", "rocks", "manifest")
+      return dir.path(tree, cfg.rocks_subdir, "manifest")
    else
       assert(type(tree) == "table")
-      return (tree.rocks_dir and dir.path(tree.rocks_dir, "manifest")) or dir.path(tree.root, "lib", "luarocks", "rocks", "manifest")
+      return (tree.rocks_dir and dir.path(tree.rocks_dir, "manifest")) or dir.path(tree.root, cfg.rocks_subdir, "manifest")
    end
 end
 
@@ -82,10 +82,10 @@ end
 -- @return string: The resulting path -- does not guarantee that
 -- @param tree string or nil: If given, specifies the local tree to use.
 -- the package (and by extension, the path) exists.
-function versions_dir(name, tree)
+function path.versions_dir(name, tree)
    assert(type(name) == "string")
    tree = tree or cfg.root_dir
-   return dir.path(rocks_dir(tree), name)
+   return dir.path(path.rocks_dir(tree), name)
 end
 
 --- Get the local installation directory (prefix) for a package.
@@ -94,11 +94,11 @@ end
 -- @param tree string or nil: If given, specifies the local tree to use.
 -- @return string: The resulting path -- does not guarantee that
 -- the package (and by extension, the path) exists.
-function install_dir(name, version, tree)
+function path.install_dir(name, version, tree)
    assert(type(name) == "string")
    assert(type(version) == "string")
    tree = tree or cfg.root_dir
-   return dir.path(rocks_dir(tree), name, version)
+   return dir.path(path.rocks_dir(tree), name, version)
 end
 
 --- Get the local filename of the rockspec of an installed rock.
@@ -107,11 +107,11 @@ end
 -- @param tree string or nil: If given, specifies the local tree to use.
 -- @return string: The resulting path -- does not guarantee that
 -- the package (and by extension, the file) exists.
-function rockspec_file(name, version, tree)
+function path.rockspec_file(name, version, tree)
    assert(type(name) == "string")
    assert(type(version) == "string")
    tree = tree or cfg.root_dir
-   return dir.path(rocks_dir(tree), name, version, name.."-"..version..".rockspec")
+   return dir.path(path.rocks_dir(tree), name, version, name.."-"..version..".rockspec")
 end
 
 --- Get the local filename of the rock_manifest file of an installed rock.
@@ -120,11 +120,11 @@ end
 -- @param tree string or nil: If given, specifies the local tree to use.
 -- @return string: The resulting path -- does not guarantee that
 -- the package (and by extension, the file) exists.
-function rock_manifest_file(name, version, tree)
+function path.rock_manifest_file(name, version, tree)
    assert(type(name) == "string")
    assert(type(version) == "string")
    tree = tree or cfg.root_dir
-   return dir.path(rocks_dir(tree), name, version, "rock_manifest")
+   return dir.path(path.rocks_dir(tree), name, version, "rock_manifest")
 end
 
 --- Get the local installation directory for C libraries of a package.
@@ -133,11 +133,11 @@ end
 -- @param tree string or nil: If given, specifies the local tree to use.
 -- @return string: The resulting path -- does not guarantee that
 -- the package (and by extension, the path) exists.
-function lib_dir(name, version, tree)
+function path.lib_dir(name, version, tree)
    assert(type(name) == "string")
    assert(type(version) == "string")
    tree = tree or cfg.root_dir
-   return dir.path(rocks_dir(tree), name, version, "lib")
+   return dir.path(path.rocks_dir(tree), name, version, "lib")
 end
 
 --- Get the local installation directory for Lua modules of a package.
@@ -146,11 +146,11 @@ end
 -- @param tree string or nil: If given, specifies the local tree to use.
 -- @return string: The resulting path -- does not guarantee that
 -- the package (and by extension, the path) exists.
-function lua_dir(name, version, tree)
+function path.lua_dir(name, version, tree)
    assert(type(name) == "string")
    assert(type(version) == "string")
    tree = tree or cfg.root_dir
-   return dir.path(rocks_dir(tree), name, version, "lua")
+   return dir.path(path.rocks_dir(tree), name, version, "lua")
 end
 
 --- Get the local installation directory for documentation of a package.
@@ -159,11 +159,11 @@ end
 -- @param tree string or nil: If given, specifies the local tree to use.
 -- @return string: The resulting path -- does not guarantee that
 -- the package (and by extension, the path) exists.
-function doc_dir(name, version, tree)
+function path.doc_dir(name, version, tree)
    assert(type(name) == "string")
    assert(type(version) == "string")
    tree = tree or cfg.root_dir
-   return dir.path(rocks_dir(tree), name, version, "doc")
+   return dir.path(path.rocks_dir(tree), name, version, "doc")
 end
 
 --- Get the local installation directory for configuration files of a package.
@@ -172,11 +172,11 @@ end
 -- @param tree string or nil: If given, specifies the local tree to use.
 -- @return string: The resulting path -- does not guarantee that
 -- the package (and by extension, the path) exists.
-function conf_dir(name, version, tree)
+function path.conf_dir(name, version, tree)
    assert(type(name) == "string")
    assert(type(version) == "string")
    tree = tree or cfg.root_dir
-   return dir.path(rocks_dir(tree), name, version, "conf")
+   return dir.path(path.rocks_dir(tree), name, version, "conf")
 end
 
 --- Get the local installation directory for command-line scripts
@@ -186,11 +186,11 @@ end
 -- @param tree string or nil: If given, specifies the local tree to use.
 -- @return string: The resulting path -- does not guarantee that
 -- the package (and by extension, the path) exists.
-function bin_dir(name, version, tree)
+function path.bin_dir(name, version, tree)
    assert(type(name) == "string")
    assert(type(version) == "string")
    tree = tree or cfg.root_dir
-   return dir.path(rocks_dir(tree), name, version, "bin")
+   return dir.path(path.rocks_dir(tree), name, version, "bin")
 end
 
 --- Extract name, version and arch of a rock filename,
@@ -198,7 +198,7 @@ end
 -- @param file_name string: pathname of a rock or rockspec
 -- @return (string, string, string) or nil: name, version and arch
 -- or nil if name could not be parsed
-function parse_name(file_name)
+function path.parse_name(file_name)
    assert(type(file_name) == "string")
    if file_name:match("%.rock$") then
       return dir.base_name(file_name):match("(.*)-([^-]+-%d+)%.([^.]+)%.rock$")
@@ -213,7 +213,7 @@ end
 -- @param version string: Package version.
 -- @param arch string: Architecture identifier, or "rockspec" or "installed".
 -- @return string: A URL or pathname following LuaRocks naming conventions.
-function make_url(pathname, name, version, arch)
+function path.make_url(pathname, name, version, arch)
    assert(type(pathname) == "string")
    assert(type(name) == "string")
    assert(type(version) == "string")
@@ -237,7 +237,7 @@ end
 -- @return string: The module identifier, or nil if given path is
 -- not a conformant module path (the function does not check if the
 -- path actually exists).
-function path_to_module(file)
+function path.path_to_module(file)
    assert(type(file) == "string")
 
    local name = file:match("(.*)%."..cfg.lua_extension.."$")
@@ -262,7 +262,7 @@ end
 -- For example, on Unix, "foo.bar.baz" will return "foo/bar".
 -- @param mod string: A module name in Lua dot-separated format.
 -- @return string: A directory name using the platform's separator.
-function module_to_path(mod)
+function path.module_to_path(mod)
    assert(type(mod) == "string")
    return (mod:gsub("[^.]*$", ""):gsub("%.", dir.separator))
 end
@@ -271,23 +271,29 @@ end
 -- Create a "variables" table in the rockspec table, containing
 -- adjusted variables according to the configuration file.
 -- @param rockspec table: The rockspec table.
-function configure_paths(rockspec)
+function path.configure_paths(rockspec)
    assert(type(rockspec) == "table")
    local vars = {}
    for k,v in pairs(cfg.variables) do
       vars[k] = v
    end
    local name, version = rockspec.name, rockspec.version
-   vars.PREFIX = install_dir(name, version)
-   vars.LUADIR = lua_dir(name, version)
-   vars.LIBDIR = lib_dir(name, version)
-   vars.CONFDIR = conf_dir(name, version)
-   vars.BINDIR = bin_dir(name, version)
-   vars.DOCDIR = doc_dir(name, version)
+   vars.PREFIX = path.install_dir(name, version)
+   vars.LUADIR = path.lua_dir(name, version)
+   vars.LIBDIR = path.lib_dir(name, version)
+   vars.CONFDIR = path.conf_dir(name, version)
+   vars.BINDIR = path.bin_dir(name, version)
+   vars.DOCDIR = path.doc_dir(name, version)
    rockspec.variables = vars
 end
 
-function versioned_name(file, prefix, name, version)
+--- Produce a versioned version of a filename.
+-- @param file string: filename (must start with prefix)
+-- @param prefix string: Path prefix for file
+-- @param name string: Rock name
+-- @param version string: Rock version
+-- @return string: a pathname with the same directory parts and a versioned basename.
+function path.versioned_name(file, prefix, name, version)
    assert(type(file) == "string")
    assert(type(name) == "string")
    assert(type(version) == "string")
@@ -297,19 +303,83 @@ function versioned_name(file, prefix, name, version)
    return dir.path(prefix, name_version.."-"..rest)
 end
 
-function use_tree(tree)
+function path.use_tree(tree)
    cfg.root_dir = tree
-   cfg.rocks_dir = rocks_dir(tree)
-   cfg.deploy_bin_dir = deploy_bin_dir(tree)
-   cfg.deploy_lua_dir = deploy_lua_dir(tree)
-   cfg.deploy_lib_dir = deploy_lib_dir(tree)
+   cfg.rocks_dir = path.rocks_dir(tree)
+   cfg.deploy_bin_dir = path.deploy_bin_dir(tree)
+   cfg.deploy_lua_dir = path.deploy_lua_dir(tree)
+   cfg.deploy_lib_dir = path.deploy_lib_dir(tree)
 end
 
---- Driver function for "path" command.
--- @return boolean This function always succeeds.
-function run(...)
-   util.printout(cfg.export_lua_path:format(package.path))
-   util.printout(cfg.export_lua_cpath:format(package.cpath))
-   return true
+--- Apply a given function to the active rocks trees based on chosen dependency mode.
+-- @param deps_mode string: Dependency mode: "one" for the current default tree,
+-- "all" for all trees, "order" for all trees with priority >= the current default,
+-- "none" for no trees (this function becomes a nop).
+-- @param fn function: function to be applied, with the tree dir (string) as the first
+-- argument and the remaining varargs of map_trees as the following arguments.
+-- @return a table with all results of invocations of fn collected.
+function path.map_trees(deps_mode, fn, ...)
+   local result = {}
+   if deps_mode == "one" then
+      table.insert(result, (fn(cfg.root_dir, ...)) or 0)
+   elseif deps_mode == "all" or deps_mode == "order" then
+      local use = false
+      if deps_mode == "all" then
+         use = true
+      end
+      for _, tree in ipairs(cfg.rocks_trees) do
+         if dir.normalize(path.rocks_tree_to_string(tree)) == dir.normalize(path.rocks_tree_to_string(cfg.root_dir)) then
+            use = true
+         end
+         if use then
+            table.insert(result, (fn(tree, ...)) or 0)
+         end
+      end
+   end
+   return result
 end
 
+--- Return the pathname of the file that would be loaded for a module, indexed.
+-- @param module_name string: module name (eg. "socket.core")
+-- @param name string: name of the package (eg. "luasocket")
+-- @param version string: version number (eg. "2.0.2-1")
+-- @param tree string: repository path (eg. "/usr/local")
+-- @param i number: the index, 1 if version is the current default, > 1 otherwise.
+-- This is done this way for use by select_module in luarocks.loader.
+-- @return string: filename of the module (eg. "/usr/local/lib/lua/5.1/socket/core.so")
+function path.which_i(module_name, name, version, tree, i)
+   local deploy_dir
+   if module_name:match("%.lua$") then
+      deploy_dir = path.deploy_lua_dir(tree)
+      module_name = dir.path(deploy_dir, module_name)
+   else
+      deploy_dir = path.deploy_lib_dir(tree)
+      module_name = dir.path(deploy_dir, module_name)
+   end
+   if i > 1 then
+      module_name = path.versioned_name(module_name, deploy_dir, name, version)
+   end
+   return module_name
+end
+
+--- Return the pathname of the file that would be loaded for a module, 
+-- returning the versioned pathname if given version is not the default version
+-- in the given manifest.
+-- @param module_name string: module name (eg. "socket.core")
+-- @param name string: name of the package (eg. "luasocket")
+-- @param version string: version number (eg. "2.0.2-1")
+-- @param tree string: repository path (eg. "/usr/local")
+-- @param manifest table: the manifest table for the tree.
+-- @return string: filename of the module (eg. "/usr/local/lib/lua/5.1/socket/core.so")
+function path.which(module_name, filename, name, version, tree, manifest)
+   local versions = manifest.modules[module_name]
+   assert(versions)
+   for i, name_version in ipairs(versions) do
+      if name_version == name.."/"..version then
+         return path.which_i(filename, name, version, tree, i):gsub("//", "/")
+      end
+   end
+   assert(false)
+end
+
+return path

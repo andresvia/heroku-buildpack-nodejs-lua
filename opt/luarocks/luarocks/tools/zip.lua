@@ -1,7 +1,8 @@
 
 --- A Lua implementation of .zip file archiving (used for creating .rock files),
 -- using only lua-zlib.
-module("luarocks.tools.zip", package.seeall)
+--module("luarocks.tools.zip", package.seeall)
+local zip = {}
 
 local zlib = require("zlib")
 local fs = require("luarocks.fs")
@@ -109,7 +110,7 @@ local function zipwriter_add(self, file)
    if not ok then
       err = "error in opening "..file.." in zipfile"
    else
-      fin = io.open(file, "rb")
+      fin = io.open(fs.absolute_name(file), "rb")
       if not fin then
          ok = false
          err = "error opening "..file.." for reading"
@@ -188,11 +189,11 @@ end
 --- Return a zip handle open for writing.
 -- @param name filename of the zipfile to be created.
 -- @return a zip handle, or nil in case of error.
-function new_zipwriter(name)
+function zip.new_zipwriter(name)
    
    local zw = {}
   
-   zw.ziphandle = io.open(name, "wb")
+   zw.ziphandle = io.open(fs.absolute_name(name), "wb")
    if not zw.ziphandle then
       return nil
    end
@@ -214,8 +215,8 @@ end
 -- additional arguments.
 -- @return boolean or (boolean, string): true on success,
 -- false and an error message on failure.
-function zip(zipfile, ...)
-   local zw = new_zipwriter(zipfile)
+function zip.zip(zipfile, ...)
+   local zw = zip.new_zipwriter(zipfile)
    if not zw then
       return nil, "error opening "..zipfile
    end
@@ -243,3 +244,5 @@ function zip(zipfile, ...)
    return ok, err
 end
 
+
+return zip
