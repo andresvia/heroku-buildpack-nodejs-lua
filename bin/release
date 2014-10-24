@@ -8,4 +8,5 @@ config_vars:
   LD_LIBRARY_PATH: /app/packages/lib
   LUA_CPATH: ./?.so;/app/packages/lib/lua/5.1/?.so
   LUA_PATH: ./?.lua;/app/packages/share/lua/5.1/?.lua;/app/packages/share/lua/5.1/?/init.lua
+  STACK: $STACK
 EOF
