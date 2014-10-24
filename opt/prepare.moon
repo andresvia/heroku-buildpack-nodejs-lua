@@ -59,7 +59,7 @@ path.use_tree tree
 
 cfg.deploy_bin_dir = bin
 
-success, msg = deps.fulfill_dependencies rockspec
+success, msg = deps.fulfill_dependencies rockspec, "one"
 error msg if not success
 
 for extra in *extras

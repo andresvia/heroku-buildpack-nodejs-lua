@@ -69,7 +69,7 @@ do
 end
 path.use_tree(tree)
 cfg.deploy_bin_dir = bin
-local success, msg = deps.fulfill_dependencies(rockspec)
+local success, msg = deps.fulfill_dependencies(rockspec, "one")
 if not success then
   error(msg)
 end

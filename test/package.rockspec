@@ -7,6 +7,6 @@ dependencies = {
 
 config = {
   rocks_servers = {
-    "http://luarocks.giga.puc-rio.br/"
+    "http://rocks.moonscript.org/"
   }
 }
