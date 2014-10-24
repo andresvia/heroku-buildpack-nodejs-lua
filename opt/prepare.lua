@@ -41,10 +41,6 @@ local rockspec = {
   dependencies = { }
 }
 setfenv(fn, rockspec)()
-local config = require("luarocks.site_config")
-for k, v in pairs(config) do
-  print("CONFIG", k, v)
-end
 local path = require("luarocks.path")
 local deps = require("luarocks.deps")
 local install = require("luarocks.install")

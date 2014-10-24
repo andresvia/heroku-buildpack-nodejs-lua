@@ -38,10 +38,6 @@ rockspec = {
 }
 setfenv(fn, rockspec)!
 
-config = require"luarocks.site_config"
-for k, v in pairs config
-  print "CONFIG", k, v
-
 path = require"luarocks.path"
 deps = require"luarocks.deps"
 install = require"luarocks.install"
