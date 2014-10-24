@@ -3,7 +3,7 @@
 This is a [Heroku buildpack](http://devcenter.heroku.com/articles/buildpack)
 for Lua apps.
 
-It comes bundled with [Lua 5.1][1] and [LuaRocks 2.0.7.1][2].
+It comes bundled with [Lua 5.1][1] and [LuaRocks 2.2.0][2].
 
 Read a tutorial at <http://leafo.net/posts/lua_on_heroku.html>.
 
@@ -29,7 +29,7 @@ could look something like this:
     -- my_app.rockspec
     dependencies = {
       "xavante >= 2.2.1",
-      "http://moonscript.org/rocks/moonscript-dev-1.src.rock",
+      "https://rocks.moonscript.org/manifests/leafo/moonscript-0.2.6-1.src.rock",
       "cosmo"
     }
 
@@ -86,16 +86,9 @@ start it:
     $ heroku scale web=1
 
 
-## Note
-
-If you were using the first incarnation of this buildpack the paths were not
-set automatically. In order to upgrade your app use `heroku config` to
-manually set the config vars described in the [release script][6].
-
  [1]: http://www.lua.org
  [2]: http://luarocks.org/
  [3]: https://github.com/leafo/heroku-buildpack-lua/blob/master/opt/prepare.moon
  [4]: http://luarocks.org/en/Rockspec_format
  [5]: http://keplerproject.github.com/xavante/
- [6]: https://github.com/leafo/heroku-buildpack-lua/blob/master/bin/release
 

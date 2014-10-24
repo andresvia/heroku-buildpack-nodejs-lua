@@ -1,7 +1,7 @@
 
 dependencies = {
 	"alt-getopt >= 0.7",
-	"http://moonscript.org/rocks/moonscript-dev-1.src.rock",
+	"https://rocks.moonscript.org/manifests/leafo/moonscript-0.2.6-1.src.rock",
 	"lua-cjson"
 }
 
