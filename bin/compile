@@ -34,10 +34,11 @@ SITE_CONFIG="$OPT_DIR/luarocks/luarocks/site_config.lua"
 
 if [ "$ENV" != "local" ]; then
   export PATH=$OPT_DIR/$STACK:$PATH
-  echo "LUA_INCDIR=[[$OPT_DIR/../include]]" >> $SITE_CONFIG
-  echo "LUA_LIBDIR=[[$OPT_DIR/../lib/$STACK/]]" >> $SITE_CONFIG
+  echo "site_config.LUA_INCDIR=[[$OPT_DIR/../include]]" >> $SITE_CONFIG
+  echo "site_config.LUA_LIBDIR=[[$OPT_DIR/../lib/$STACK/]]" >> $SITE_CONFIG
+  cat $SITE_CONFIG
 else
-	LUA=lua5.1
+  LUA=lua5.1
 fi
 
 # use sed because grep halts script with -e when there is no match
