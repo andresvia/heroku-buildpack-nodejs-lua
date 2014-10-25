@@ -11,7 +11,9 @@ Read a tutorial at <http://leafo.net/posts/lua_on_heroku.html>.
 
 Create an app with the buildpack:
 
-    $ heroku create --buildpack http://github.com/leafo/heroku-buildpack-lua.git
+```bash
+$ heroku create --buildpack http://github.com/leafo/heroku-buildpack-lua.git
+```
 
 ### Dependencies
 
@@ -26,12 +28,14 @@ The buildpack *only* looks at the dependency information. Meaning you don't
 have to follow the entire rockspec specification. Minimally, your rockspec
 could look something like this:
 
-    -- my_app.rockspec
-    dependencies = {
-      "xavante >= 2.2.1",
-      "https://rocks.moonscript.org/manifests/leafo/moonscript-0.2.6-1.src.rock",
-      "cosmo"
-    }
+```lua
+-- my_app.rockspec
+dependencies = {
+  "xavante >= 2.2.1",
+  "https://rocks.moonscript.org/manifests/leafo/moonscript-0.2.6-1.src.rock",
+  "cosmo"
+}
+```
 
 As shown above, if you want to include external rockspec or rock files by URL
 you can place them in the dependencies table. (This is not supported by
@@ -53,28 +57,30 @@ work.
 
 Use [Xavante][5] for a quick web server:
 
-    -- web.lua
-    require "xavante"
+```lua
+-- web.lua
+require "xavante"
 
-    port = ...
+port = ...
 
-    xavante.HTTP {
-      server = { host = "*", port = tonumber(port) },
-      defaultHost = {
-        rules = {
-          {
-            match = ".",
-            with = function(req, res)
-              res.headers["Content-type"] = "text/html"
-              res.content = "hello world, the time is: " .. os.date()
-              return res
-            end
-          }
-        }
+xavante.HTTP {
+  server = { host = "*", port = tonumber(port) },
+  defaultHost = {
+    rules = {
+      {
+        match = ".",
+        with = function(req, res)
+          res.headers["Content-type"] = "text/html"
+          res.content = "hello world, the time is: " .. os.date()
+          return res
+        end
       }
     }
+  }
+}
 
-    xavante.start()
+xavante.start()
+```
 
 Tell Heroku to spawn your web server by creating a file called `Procfile`:
 
@@ -83,7 +89,9 @@ Tell Heroku to spawn your web server by creating a file called `Procfile`:
 After pushing, if the web server doesn't start automatically, tell Heroku to
 start it:
 
-    $ heroku scale web=1
+```bash
+$ heroku scale web=1
+```
 
 
  [1]: http://www.lua.org
