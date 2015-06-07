@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# bin/compile <build-dir> <cache-dir>
+
+set -e
+set -o pipefail
+
+BUILD_DIR=$1
+CACHE_DIR=$2
+
+function indent() {
+  c='s/^/       /'
+  case $(uname) in
+    Darwin) sed -l "$c";;
+    *)      sed -u "$c";;
+  esac
+}
+
+BIN_DIR=$(cd $(dirname $0); pwd) # absolute path
+OPT_DIR=$(cd "$BIN_DIR/../opt"; pwd)
+
+LUA=lua
+
+cd $BUILD_DIR
+
+mkdir -p bin
+mkdir -p packages
+
+echo "-----> Copying lua to bin"
+cp "$OPT_DIR/$STACK/lua" "bin/"
+
+echo "-----> Installing packages"
+
+SITE_CONFIG="$OPT_DIR/luarocks/luarocks/site_config.lua"
+
+if [ "$ENV" != "local" ]; then
+  export PATH=$OPT_DIR/$STACK:$PATH
+  echo "site_config.LUA_INCDIR=[[$OPT_DIR/../include]]" >> $SITE_CONFIG
+  echo "site_config.LUA_LIBDIR=[[$OPT_DIR/../lib/$STACK/]]" >> $SITE_CONFIG
+else
+  LUA=lua5.1
+fi
+
+# use sed because grep halts script with -e when there is no match
+ROCKSPEC=$(ls | sed -n 's/\.rockspec$/&/p' | head -n 1)
+
+if [[ -z "$ROCKSPEC" ]]; then
+  echo "-----> Fatal Error"
+  echo ""
+  echo "       package.lua is no longer supported."
+  echo ""
+  echo "       You must provide a rockspec with your app."
+  echo "       See https://github.com/leafo/heroku-buildpack-lua/blob/master/README.md"
+  echo ""
+  exit 1
+fi
+
+$LUA "$OPT_DIR/prepare.lua" $ROCKSPEC $OPT_DIR 2>&1 | indent
+
