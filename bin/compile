@@ -17,6 +17,8 @@ heroku_dir=$build_dir/.heroku
 mkdir -p $heroku_dir/node
 warnings=$(mktemp)
 
+$bp_dir/bin/compile-lua
+
 # Load dependencies
 source $bp_dir/lib/common.sh
 source $bp_dir/lib/build.sh
@@ -66,7 +68,6 @@ warn_start "$start_method"
 ####### Finalize the build
 
 head "Finalizing build"
-$bp_dir/bin/compile-lua
 write_profile
 write_export
 clean_npm
