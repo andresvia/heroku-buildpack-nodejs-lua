@@ -41,9 +41,7 @@ else
 fi
 
 # use sed because grep halts script with -e when there is no match
-pwd
-ls
-ROCKSPEC=$(ls | sed -n 's/\.rockspec$/&/p' | head -n 1)
+ROCKSPEC=$(ls app | sed -n 's/\.rockspec$/&/p' | head -n 1)
 
 if [[ -z "$ROCKSPEC" ]]; then
   echo "-----> Fatal Error"
