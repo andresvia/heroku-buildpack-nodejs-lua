@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # bin/detect <build-dir>
 
-if [ -f $1/package.json ]; then
-  echo "Node.js" && exit 0
-elif [ -f $1/server.js ]; then
-  echo "Node.js" && exit 0
+if [[ \(-f $1/package.json -o -f $1/server.js\) -a $(ls $1/*.rockspec 2> /dev/null | wc -l) -gt 0 ]]; then
+  echo "Node.js & Lua" && exit 0
+elif [[ \(-f $1/package.json -o -f $1/server.js\) -a -f $1/package.lua ]]; then
+  echo "Node.js & Lua-legacy" && exit 0
 else
   echo "no" && exit 1
 fi
