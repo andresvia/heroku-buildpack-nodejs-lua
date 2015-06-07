@@ -66,7 +66,7 @@ warn_start "$start_method"
 ####### Finalize the build
 
 head "Finalizing build"
-$bp_dir/bin/compile-lua
+$bp_dir/bin/compile-lua $1 $2
 write_profile
 write_export
 clean_npm
